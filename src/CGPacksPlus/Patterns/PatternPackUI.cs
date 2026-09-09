@@ -14,6 +14,16 @@ using UnityEngine.UI;
 
 public class PatternPackUI
 {
+    private const int MAX_ITEMS_PER_PAGE = 12;
+    private PatternPack focusedPatternPack = null;
+    private Transform packUI = null;
+    private Transform grid = null; 
+    private Transform toggleAllButton = null;
+    private TMP_Text pageText = null;
+    private Dictionary<string, GameObject> patternActiveIndicators = [];
+    private int currentPage = 1;
+    private int maxPages = 1;
+
     public Transform CGPatternsPanelUI => 
         SceneManager
             .GetActiveScene()
@@ -21,18 +31,6 @@ public class PatternPackUI
             .First((obj) => obj.name == "FirstRoom")
             .transform
             .Find("Room/Cybergrind Shop/Canvas/Background/Main Panel/Patterns");
-
-    private PatternPack focusedPatternPack = null;
-    private Transform packUI = null;
-    private Transform grid = null; 
-    private Transform toggleAllButton = null;
-    private TMP_Text pageText = null;
-
-    private Dictionary<string, GameObject> patternActiveIndicators = [];
-
-    private int currentPage = 1;
-    private int maxPages = 1;
-    private const int MAX_ITEMS_PER_PAGE = 12;
 
     public PatternPackUI()
     {

@@ -20,8 +20,8 @@ public static class CustomPatternsPatch
 {
 	private static PatternPackUI packUI = null;
 	private static PatternManager pm = null;
-	private static Dictionary<string, GameObject> PatternPackActiveIndicators => CustomPatternsInstance.patternPackActiveIndicators;
-	private static Dictionary<string, GameObject> PatternActiveIndicators => CustomPatternsInstance.patternActiveIndicators;
+	private static Dictionary<string, GameObject> patternPackActiveIndicators => CustomPatternsInstance.patternPackActiveIndicators;
+	private static Dictionary<string, GameObject> patternActiveIndicators => CustomPatternsInstance.patternActiveIndicators;
 
 	public static CustomPatterns CustomPatternsInstance = null;
 
@@ -98,8 +98,8 @@ public static class CustomPatternsPatch
 				packButton.GetComponent<ControllerPointer>().OnPressed.AddListener(() => packUI.SetFocusedPack(pack));
 				packButton.SetActive(true);
 
-				PatternActiveIndicators[current.path] = packButton.transform.GetChild(0).gameObject;
-				PatternActiveIndicators[current.path].SetActive(pack.EnabledPatterns.Count == pack.ListAllPatterns().Length);
+				patternActiveIndicators[current.path] = packButton.transform.GetChild(0).gameObject;
+				patternActiveIndicators[current.path].SetActive(pack.EnabledPatterns.Count == pack.ListAllPatterns().Length);
 				continue;
 			}
 
