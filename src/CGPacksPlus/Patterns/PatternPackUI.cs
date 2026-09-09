@@ -108,10 +108,10 @@ public class PatternPackUI
         // load all of the patterns that are on the current page
         for (int i = (currentPage - 1) * MAX_ITEMS_PER_PAGE; i < allPatterns.Length && i < currentPage * MAX_ITEMS_PER_PAGE; ++i)
         {
-            var pattern = PatternManager.Instance.LoadPattern(Path.Join(focusedPatternPack.path, allPatterns[i]));
+            var pattern = PatternManager.Instance.LoadPattern(Path.Join(focusedPatternPack.Path, allPatterns[i]));
             if (pattern == null)
             {
-                Plugin.Log.Error($"Failed to load pattern \"{Path.Join(focusedPatternPack.path, allPatterns[i])}\"");
+                Plugin.Log.Error($"Failed to load pattern \"{Path.Join(focusedPatternPack.Path, allPatterns[i])}\"");
                 return;
             }
 
@@ -122,7 +122,7 @@ public class PatternPackUI
             previewTexture.Apply();
 
             if (!patternPreviewSuccess) {
-                Plugin.Log.Warning($"Failed to generate preview for {Path.Join(focusedPatternPack.path, allPatterns[i])}");
+                Plugin.Log.Warning($"Failed to generate preview for {Path.Join(focusedPatternPack.Path, allPatterns[i])}");
             }
 
             var previewSprite = Sprite.Create(previewTexture, new(0f, 0f, 16f, 16f), Vector2.zero, 100f);

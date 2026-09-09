@@ -9,16 +9,6 @@ using BepInEx.Logging;
 using HarmonyLib;
 using static BepInEx.BepInDependency;
 
-using TMPro;
-using UnityEngine;
-using UnityEngine.Events;
-using UnityEngine.EventSystems;
-using UnityEngine.SceneManagement;
-using UnityEngine.UIElements;
-using Unity;
-using UnityEngine.AddressableAssets;
-using GameConsole;
-
 [BepInPlugin(PLUGIN_FULLNAME, PLUGIN_SHORTNAME, PLUGIN_VERSION)]
 public class Plugin : BaseUnityPlugin
 {
@@ -29,18 +19,15 @@ public class Plugin : BaseUnityPlugin
     /// <summary> The current instance of the plugin, accessable by all parts of the code </summary>
     public static Plugin Instance;
 
-    /// <summary> Public version of the Logger so that the rest of the mod can acess it </summary>
-    public static plog.Logger Log;
+    public static Logger Log = new();
 
     /// <summary> We need to have an instance of this in order to do patches </summary>
-    public readonly Harmony harmony = new(PLUGIN_FULLNAME);
+    public readonly Harmony Harmony = new(PLUGIN_SHORTNAME);
 
     void Awake()
     {
         Instance = this;
-        Log = new(PLUGIN_SHORTNAME);
-
-        harmony.PatchAll(typeof(Patches.CustomPatternsPatch));
-        Logger.LogInfo($"Loaded {PLUGIN_SHORTNAME}");
+        Harmony.PatchAll(typeof(Patches.CustomPatternsPatch));
+        Log.Info($"Loaded {PLUGIN_SHORTNAME}");
     }
 }

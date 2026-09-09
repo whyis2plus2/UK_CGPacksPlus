@@ -36,9 +36,9 @@ public class PatternManager: MonoSingleton<PatternManager>
         if (parent == null) _enabledPatterns.TryAdd(patternName, LoadPattern(patternName));
         else
         {
-            _enabledPatterns.TryAdd(Path.Join(parent.path, patternName), LoadPattern(Path.Join(parent.path, patternName)));            
+            _enabledPatterns.TryAdd(Path.Join(parent.Path, patternName), LoadPattern(Path.Join(parent.Path, patternName)));            
             parent.EnabledPatterns.Add(patternName);
-            File.WriteAllText(Path.Join(PatternsPath, parent.path, "cgpack.json"), parent.ToJson());
+            File.WriteAllText(Path.Join(PatternsPath, parent.Path, "cgpack.json"), parent.ToJson());
             EndlessGrid.Instance.customPatterns = EnabledPatterns;
         }
     }
@@ -48,16 +48,16 @@ public class PatternManager: MonoSingleton<PatternManager>
         if (parent == null) _enabledPatterns.Remove(patternName);
         else
         {
-            _enabledPatterns.Remove(Path.Join(parent.path, patternName));
+            _enabledPatterns.Remove(Path.Join(parent.Path, patternName));
             parent.EnabledPatterns.Remove(patternName);
-            File.WriteAllText(Path.Join(PatternsPath, parent.path, "cgpack.json"), parent.ToJson());
+            File.WriteAllText(Path.Join(PatternsPath, parent.Path, "cgpack.json"), parent.ToJson());
             EndlessGrid.Instance.customPatterns = EnabledPatterns;
         }
     }
 
     public void TogglePattern(PatternPack parent, string patternName)
     {
-        string key = (parent == null)? patternName : Path.Join(parent.path, patternName);
+        string key = (parent == null)? patternName : Path.Join(parent.Path, patternName);
         if (_enabledPatterns.Keys.Contains(key)) DisablePattern(parent, key);
         else EnablePattern(parent, key);
     }
@@ -82,7 +82,7 @@ public class PatternManager: MonoSingleton<PatternManager>
         {
             // load the image into a new texture for ease of implementing the padding algorithm
             Texture2D image = new(1, 1);
-            image.LoadImage(File.ReadAllBytes(Path.Join(PatternsPath, pack.path, pack.ThumbnailPath)));
+            image.LoadImage(File.ReadAllBytes(Path.Join(PatternsPath, pack.Path, pack.ThumbnailPath)));
 
             if (image.width == image.height)
             {
@@ -107,7 +107,7 @@ public class PatternManager: MonoSingleton<PatternManager>
 
         for (int i = 0; i < allPatterns.Length && i < 6; ++i)
         {
-            ArenaPattern pattern = LoadPattern(Path.Join(pack.path, allPatterns[i]));
+            ArenaPattern pattern = LoadPattern(Path.Join(pack.Path, allPatterns[i]));
             Vector2Int offset = new(i % 3, (i > 2)? 1 : 0);
             bool result = GeneratePatternPreview(pattern, offset, ref target);
             if (!result) return false;
@@ -183,14 +183,14 @@ public class PatternManager: MonoSingleton<PatternManager>
         if (!File.Exists(Path.Join(absolutePath, "cgpack.json")))
         {
             result = new();
-            result.path = result.PackName = relativePath;
+            result.Path = result.PackName = relativePath;
 
             patternPackCache[relativePath] = result;
             return result;
         }
 
         result = PatternPack.FromJson(File.ReadAllText(Path.Join(absolutePath, "cgpack.json")));
-        result.path = relativePath;
+        result.Path = relativePath;
         patternPackCache[relativePath] = result;
 
         // add the pack's patterns to the cache

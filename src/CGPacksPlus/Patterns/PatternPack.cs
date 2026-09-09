@@ -9,47 +9,47 @@ using System.Linq;
 using System.Text;
 using UnityEngine;
 
-[System.Serializable]
+[Serializable]
 class PatternPackInfo
 {
     /// <summary>
     /// The display name of the cybergrind pack
     /// The name of the folder the pack is stored in will be used instead if this is null.
     /// </summary>
-    public string name = "";
+    public string Name = "";
 
     /// <summary>
     /// A path to a thumbnail of a pack, relative to the pack's root directory
     /// if this is null, a thumbnail will be generated for the pack at runtime
     /// </summary>
-    public string thumbnailPath = "";
+    public string ThumbnailPath = "";
 
     /// <summary> A list of paths to all enabled .cgp files, all relative to the pack's root directory </summary>
-    public string[] enabledPatterns = [];
+    public string[] EnabledPatterns = [];
 }
 
 public class PatternPack
 {
     PatternPackInfo info = new();
-    public static string PatternsPath => Path.Combine(Directory.GetParent(Application.dataPath).FullName, "CyberGrind", "Patterns");
+    public static string PatternsPath => System.IO.Path.Combine(Directory.GetParent(Application.dataPath).FullName, "CyberGrind", "Patterns");
 
     /// <summary>
     /// The path to the pattern pack (relative to the cybergrind patterns folder)
     /// </summary>
-    public string path = "";
+    public string Path = "";
     
     public HashSet<string> EnabledPatterns = [];
 
     public string PackName
     {
-        get => info.name;
-        set => info.name = value;
+        get => info.Name;
+        set => info.Name = value;
     }
 
     public string ThumbnailPath
     {
-        get => info.thumbnailPath;
-        set => info.thumbnailPath = value;
+        get => info.ThumbnailPath;
+        set => info.ThumbnailPath = value;
     }
 
     public static PatternPack FromJson(string jsonData)
@@ -60,22 +60,22 @@ public class PatternPack
         return new PatternPack
         {
             info = info,
-            EnabledPatterns = info.enabledPatterns.ToHashSet()
+            EnabledPatterns = info.EnabledPatterns.ToHashSet()
         };
     }
 
     public string ToJson()
     {
-        info.enabledPatterns = EnabledPatterns.ToArray();
+        info.EnabledPatterns = EnabledPatterns.ToArray();
         return JsonUtility.ToJson(info);
     }
 
     public string[] ListAllPatterns()
     {
-        string[] absolutePaths = Directory.GetFiles(Path.Join(PatternManager.PatternsPath, path), "*.cgp", SearchOption.TopDirectoryOnly);
-        return (from path in absolutePaths select Path.GetFileName(path)).ToArray();
+        string[] absolutePaths = Directory.GetFiles(System.IO.Path.Join(PatternManager.PatternsPath, Path), "*.cgp", SearchOption.TopDirectoryOnly);
+        return (from path in absolutePaths select System.IO.Path.GetFileName(path)).ToArray();
     }
 
     public bool HasValidThumbnail =>
-        File.Exists(Path.Join(PatternManager.PatternsPath, path, ThumbnailPath));
+        File.Exists(System.IO.Path.Join(PatternManager.PatternsPath, Path, ThumbnailPath));
 }
