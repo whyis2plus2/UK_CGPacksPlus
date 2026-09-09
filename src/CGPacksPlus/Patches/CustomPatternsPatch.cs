@@ -18,21 +18,22 @@ using UnityEngine.UI;
 
 public static class CustomPatternsPatch
 {
-    static string PatternsPath => Path.Combine(Directory.GetParent(Application.dataPath).FullName, "CyberGrind", "Patterns");
+	private static PatternPackUI packUI = null;
+	private static PatternManager pm = null;
+	private static Dictionary<string, GameObject> PatternPackActiveIndicators => CustomPatternsInstance.patternPackActiveIndicators;
+	private static Dictionary<string, GameObject> PatternActiveIndicators => CustomPatternsInstance.patternActiveIndicators;
 
-	static PatternPackUI packUI = null;
-	static PatternManager pm = null;
-	public static CustomPatterns customPatternsInstance = null;
+	public static CustomPatterns CustomPatternsInstance = null;
 
-	static int MaxItemsPerPage => customPatternsInstance.maxItemsPerPage;
-	static Dictionary<string, GameObject> PatternPackActiveIndicators => customPatternsInstance.patternPackActiveIndicators;
-	static Dictionary<string, GameObject> PatternActiveIndicators => customPatternsInstance.patternActiveIndicators;
+	private static int maxItemsPerPage => CustomPatternsInstance.maxItemsPerPage;
+    private static string patternsPath => Path.Combine(Directory.GetParent(Application.dataPath).FullName, "CyberGrind", "Patterns");
+	
 
 	[HarmonyPrefix]
 	[HarmonyPatch(typeof(CustomPatterns), "Awake")]
 	public static void Prefix_CustomPatterns_Awake(ref CustomPatterns __instance)
 	{
-		customPatternsInstance = __instance;
+		CustomPatternsInstance = __instance;
 		pm = new();
 		packUI = new();
 	}
@@ -61,15 +62,15 @@ public static class CustomPatternsPatch
 
 		List<GridTile> allPacksAndPatterns = [];
 
-		foreach (string dir in Directory.GetDirectories(PatternsPath, "*", SearchOption.TopDirectoryOnly))
+		foreach (string dir in Directory.GetDirectories(patternsPath, "*", SearchOption.TopDirectoryOnly))
 			allPacksAndPatterns.Add(new(){folder = true, path = Path.GetFileName(dir)});
 
-		foreach (string dir in Directory.GetFiles(PatternsPath, "*.cgp", SearchOption.TopDirectoryOnly))
+		foreach (string dir in Directory.GetFiles(patternsPath, "*.cgp", SearchOption.TopDirectoryOnly))
 			allPacksAndPatterns.Add(new(){folder = false, path = Path.GetFileName(dir)});
 
-		__instance.maxPages = Mathf.CeilToInt((float)allPacksAndPatterns.Count/MaxItemsPerPage);
+		__instance.maxPages = Mathf.CeilToInt((float)allPacksAndPatterns.Count/maxItemsPerPage);
 		int currentPage = __instance.currentPage;
-		for (int i = (currentPage - 1) * MaxItemsPerPage; i < allPacksAndPatterns.Count && i < currentPage * MaxItemsPerPage; ++i)
+		for (int i = (currentPage - 1) * maxItemsPerPage; i < allPacksAndPatterns.Count && i < currentPage * maxItemsPerPage; ++i)
 		{
 			GridTile current = allPacksAndPatterns[i];
 
@@ -120,7 +121,7 @@ public static class CustomPatternsPatch
             patternButton.GetComponent<ControllerPointer>().OnPressed.AddListener(() =>
             {
 				pm.TogglePattern(null, key);
-				customPatternsInstance.patternActiveIndicators[key].gameObject.SetActive(!customPatternsInstance.patternActiveIndicators[key].gameObject.activeSelf);
+				CustomPatternsInstance.patternActiveIndicators[key].gameObject.SetActive(!CustomPatternsInstance.patternActiveIndicators[key].gameObject.activeSelf);
                 EndlessGrid.Instance.customPatterns = pm.EnabledPatterns;
 				pm.SaveEnabledPatterns();
             });

@@ -20,14 +20,14 @@ public class PatternManager: MonoSingleton<PatternManager>
 {
     public static string PatternsPath => Path.Combine(Directory.GetParent(Application.dataPath).FullName, "CyberGrind", "Patterns");
 
-    Dictionary<string, ArenaPattern> patternCache = [];
-    Dictionary<string, PatternPack> patternPackCache = [];
+    private Dictionary<string, ArenaPattern> patternCache = [];
+    private Dictionary<string, PatternPack> patternPackCache = [];
 
     /// <summary>
     /// All enabled paterns that are stored in the root directory of the patterns folder.
     /// patterns not stored in the root directory are handled by their respective pattern packs
     /// </summary>
-    Dictionary<string, ArenaPattern> _enabledPatterns = [];
+    private Dictionary<string, ArenaPattern> _enabledPatterns = [];
     public ArenaPattern[] EnabledPatterns => _enabledPatterns.Values?.ToArray() ?? [];
     public HashSet<string> EnabledPatternsPaths => _enabledPatterns.Keys?.ToHashSet() ?? [];
 
@@ -63,7 +63,7 @@ public class PatternManager: MonoSingleton<PatternManager>
     }
 
     public bool GeneratePatternPreview(ArenaPattern pattern, Vector2Int offset, ref Texture2D target) =>
-        CustomPatternsPatch.customPatternsInstance.GeneratePatternPreview(pattern, offset, ref target);
+        CustomPatternsPatch.CustomPatternsInstance.GeneratePatternPreview(pattern, offset, ref target);
 
     /// <summary>
     /// Generate a preview of a pattern pack.
@@ -160,7 +160,7 @@ public class PatternManager: MonoSingleton<PatternManager>
         string relativePath = Path.GetRelativePath(PatternsPath, absolutePath);
         if (patternCache.ContainsKey(relativePath)) return patternCache[relativePath];
 
-        var pattern = CustomPatternsPatch.customPatternsInstance.LoadPattern(relativePath);
+        var pattern = CustomPatternsPatch.CustomPatternsInstance.LoadPattern(relativePath);
         if (pattern == null)
         {
             Plugin.Log.Warning($"PatternManager.LoadPatternAbsolute: Failed to load pattern from path '{absolutePath}'");

@@ -30,7 +30,7 @@ class PatternPackInfo
 
 public class PatternPack
 {
-    PatternPackInfo info = new();
+    private PatternPackInfo info = new();
     public static string PatternsPath => System.IO.Path.Combine(Directory.GetParent(Application.dataPath).FullName, "CyberGrind", "Patterns");
 
     /// <summary>

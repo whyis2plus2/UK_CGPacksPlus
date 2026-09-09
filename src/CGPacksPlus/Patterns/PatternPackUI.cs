@@ -22,17 +22,17 @@ public class PatternPackUI
             .transform
             .Find("Room/Cybergrind Shop/Canvas/Background/Main Panel/Patterns");
 
-    PatternPack focusedPatternPack = null;
-    Transform packUI = null;
-    Transform grid = null; 
-    Transform toggleAllButton = null;
-    TMP_Text pageText = null;
+    private PatternPack focusedPatternPack = null;
+    private Transform packUI = null;
+    private Transform grid = null; 
+    private Transform toggleAllButton = null;
+    private TMP_Text pageText = null;
 
-    Dictionary<string, GameObject> patternActiveIndicators = [];
+    private Dictionary<string, GameObject> patternActiveIndicators = [];
 
-    int currentPage = 1;
-    int maxPages = 1;
-    const int MAX_ITEMS_PER_PAGE = 12;
+    private int currentPage = 1;
+    private int maxPages = 1;
+    private const int MAX_ITEMS_PER_PAGE = 12;
 
     public PatternPackUI()
     {
@@ -73,7 +73,7 @@ public class PatternPackUI
         if (pack == null)
         {
             packUI.gameObject.SetActive(false);
-            CustomPatternsPatch.customPatternsInstance.BuildButtons();
+            CustomPatternsPatch.CustomPatternsInstance.BuildButtons();
             return;
         }
 
@@ -191,6 +191,6 @@ public class PatternPackUI
             foreach (var indicator in patternActiveIndicators.Values) indicator?.SetActive(false);
         }
 
-        if (!EndlessGrid.Instance.customPatternMode) CustomPatternsPatch.customPatternsInstance.Toggle();
+        if (!EndlessGrid.Instance.customPatternMode) CustomPatternsPatch.CustomPatternsInstance.Toggle();
     }
 }
