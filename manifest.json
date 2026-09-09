@@ -1,0 +1,10 @@
+{
+    "name": "CGPacksPlus",
+    "description": "Adds some useful features to cybergrind packs.",
+    "author": "whyis2plus2",
+    "version_number": "0.0.1",
+    "website_url": "https://gitlab.com/whyis2plus2/UK_CGPacksPlus/",
+    "dependencies": [
+        "BepInEx-BepInExPack-5.4.2305"
+    ]
+}

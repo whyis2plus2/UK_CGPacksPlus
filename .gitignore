@@ -1,0 +1,11 @@
+bin/*
+obj/*
+out/*
+lib/*
+
+.vscode/*
+.vs/*
+.idea/*
+
+whyis2plus2-CGPacksPlus-*.zip
+*.sln
