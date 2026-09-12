@@ -2,6 +2,7 @@ namespace CGPacksPlus.Patterns;
 
 using CGPacksPlus.HelperExtensions;
 using CGPacksPlus.Patches;
+
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -11,6 +12,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using static UnityEngine.Object;
 
 public class PatternPackUI
 {
@@ -35,7 +37,7 @@ public class PatternPackUI
 
     public PatternPackUI()
     {
-        packUI = Object.Instantiate(CGPatternsPanelUI, CGPatternsPanelUI.parent);
+        packUI = Instantiate(CGPatternsPanelUI, CGPatternsPanelUI.parent);
     
         packUI.gameObject.SetActive(false);
         grid = packUI.Find("Patterns Window/Panel/Patterns/Panel/Grid");
@@ -54,13 +56,23 @@ public class PatternPackUI
 
         var pagesUI = packUI.Find("Patterns Window/Panel/Patterns/Pages");
 
-        pagesUI.GetChild(0).GetComponent<ControllerPointer>().OnPressed.RemoveAllListeners();
-        pagesUI.GetChild(0).GetComponent<ControllerPointer>().OnPressed.AddListener(PrevPage);
-        pagesUI.GetChild(2).GetComponent<ControllerPointer>().OnPressed.RemoveAllListeners();
-        pagesUI.GetChild(2).GetComponent<ControllerPointer>().OnPressed.AddListener(NextPage);
+        pagesUI.GetChild(0 /* Prev Page Button */).GetComponent<ControllerPointer>().OnPressed.RemoveAllListeners(); 
+        pagesUI.GetChild(0 /* Prev Page Button */).GetComponent<ControllerPointer>().OnPressed.AddListener(PrevPage);
+        pagesUI.GetChild(2 /* Next Page Button */).GetComponent<ControllerPointer>().OnPressed.RemoveAllListeners();
+        pagesUI.GetChild(2 /* Next Page Button */).GetComponent<ControllerPointer>().OnPressed.AddListener(NextPage);
 
         packUI.Find("Patterns Window/Panel/Warning Text").gameObject.SetActive(false);
         packUI.Find("Patterns Window/Panel/Patterns").gameObject.SetActive(true);
+
+        for (int i = 0; i < 4; ++i)
+        {
+            CGPatternsPanelUI.parent
+                .Find("Main Menu/Buttons")
+                .GetChild(i)
+                .GetComponent<ControllerPointer>()
+                .OnPressed
+                .AddListener(() => packUI.gameObject.SetActive(false));
+        }
 
         pageText = pagesUI.GetChild(1).GetComponent<TMP_Text>();
     }
@@ -87,9 +99,9 @@ public class PatternPackUI
             toggleAllButton.GetComponentInChildren<TextMeshProUGUI>().text = "Disable All";
 
         // set window title to pack name
-        packUI.Find("Patterns Window/Title")?.GetComponent<TextMeshProUGUI>().text = (focusedPatternPack.PackName.Length > 18)
-            ?$"{focusedPatternPack.PackName[..15]}..."
-            :focusedPatternPack.PackName;
+        packUI.Find("Patterns Window/Title")?.GetComponent<TextMeshProUGUI>().text = (focusedPatternPack.DisplayName.Length > 18)
+            ?$"{focusedPatternPack.DisplayName[..15]}..."
+            :focusedPatternPack.DisplayName;
 
         BuildButtons();
         packUI.gameObject.SetActive(true);
@@ -114,7 +126,7 @@ public class PatternPackUI
                 return;
             }
 
-            var patternButton = Object.Instantiate(grid.GetChild(0), grid, worldPositionStays: false).gameObject;
+            var patternButton = Instantiate(grid.GetChild(0), grid, worldPositionStays: false).gameObject;
 
             Texture2D previewTexture = new(16, 16);
             bool patternPreviewSuccess = PatternManager.Instance.GeneratePatternPreview(pattern, Vector2Int.zero, ref previewTexture);

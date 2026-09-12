@@ -12,6 +12,7 @@ using TMPro;
 
 using UnityEngine;
 using UnityEngine.UI;
+using static UnityEngine.Object;
 
 public static class CustomPatternsPatch
 {
@@ -91,8 +92,8 @@ public static class CustomPatternsPatch
 				);
 				thumbnailSprite.texture.filterMode = FilterMode.Point;
 
-				var packButton = GameObject.Instantiate(__instance.packButtonTemplate, __instance.grid, worldPositionStays: false);
-				packButton.GetComponentInChildren<TMP_Text>(includeInactive: true).text = pack.PackName;
+				var packButton = Instantiate(__instance.packButtonTemplate, __instance.grid, worldPositionStays: false);
+				packButton.GetComponentInChildren<TMP_Text>(includeInactive: true).text = pack.DisplayName;
 				packButton.GetComponent<Image>().sprite = thumbnailSprite;
 				packButton.GetComponent<ControllerPointer>().OnPressed.AddListener(() => packUI.SetFocusedPack(pack));
 				packButton.SetActive(true);
@@ -103,7 +104,7 @@ public static class CustomPatternsPatch
 			}
 
 			var pattern = pm.LoadPattern(current.path);
-            var patternButton = GameObject.Instantiate(___grid.GetChild(0), ___grid, worldPositionStays: false).gameObject;
+            var patternButton = Instantiate(___grid.GetChild(0), ___grid, worldPositionStays: false).gameObject;
 			
 			Texture2D previewTexture = new(16, 16);
 			pm.GeneratePatternPreview(pattern, Vector2Int.zero, ref previewTexture);

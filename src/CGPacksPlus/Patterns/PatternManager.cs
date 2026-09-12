@@ -177,7 +177,7 @@ public class PatternManager: MonoSingleton<PatternManager>
         if (!File.Exists(Path.Join(absolutePath, "cgpack.json")))
         {
             result = new();
-            result.Path = result.PackName = relativePath;
+            result.Path = result.DisplayName = relativePath;
 
             patternPackCache[relativePath] = result;
             return result;

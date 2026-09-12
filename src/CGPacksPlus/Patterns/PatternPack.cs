@@ -19,7 +19,7 @@ public class PatternPack
     /// The display name of the cybergrind pack
     /// The name of the folder the pack is stored in will be used instead if this is null.
     /// </summary>
-    public string PackName = "";
+    public string DisplayName = "";
 
     /// <summary>
     /// A path to a thumbnail of a pack, relative to the pack's root directory
