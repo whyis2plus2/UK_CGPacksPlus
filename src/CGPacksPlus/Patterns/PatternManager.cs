@@ -12,7 +12,7 @@ using UnityEngine;
 
 public class PatternManager: MonoSingleton<PatternManager>
 {
-    private static plog.Logger log = new($"{Plugin.PLUGIN_SHORTNAME}.{nameof(PatternManager)}");
+    private plog.Logger log = new($"{Plugin.PLUGIN_SHORTNAME}.{nameof(PatternManager)}");
     private Dictionary<string, ArenaPattern> patternCache = [];
     private Dictionary<string, PatternPack> patternPackCache = [];
 
@@ -24,7 +24,7 @@ public class PatternManager: MonoSingleton<PatternManager>
     public ArenaPattern[] EnabledPatterns => _enabledPatterns.Values?.ToArray() ?? [];
     public HashSet<string> EnabledPatternsPaths => _enabledPatterns.Keys?.ToHashSet() ?? [];
 
-    private static string patternsPath => Path.Combine(Directory.GetParent(Application.dataPath).FullName, "CyberGrind", "Patterns");
+    private string patternsPath => Path.Combine(Directory.GetParent(Application.dataPath).FullName, "CyberGrind", "Patterns");
 
     public void EnablePattern(PatternPack parent, string patternName)
     {

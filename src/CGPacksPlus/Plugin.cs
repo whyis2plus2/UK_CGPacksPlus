@@ -1,13 +1,7 @@
 ﻿namespace CGPacksPlus;
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-
 using BepInEx;
-using BepInEx.Logging;
 using HarmonyLib;
-using static BepInEx.BepInDependency;
 
 [BepInPlugin(PLUGIN_FULLNAME, PLUGIN_SHORTNAME, PLUGIN_VERSION)]
 public class Plugin : BaseUnityPlugin
