@@ -184,6 +184,7 @@ public class PatternManager: MonoSingleton<PatternManager>
         }
 
         result = PatternPack.FromJson(File.ReadAllText(Path.Join(absolutePath, "cgpack.json")));
+        result.DisplayName = result.DisplayName.Trim();
         result.Path = relativePath;
         patternPackCache[relativePath] = result;
 
