@@ -1,7 +1,7 @@
 namespace CGPacksPlus.Patterns;
 
+using CGPacksPlus.HelperExtensions;
 using CGPacksPlus.Patches;
-using GameConsole.pcon;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -23,6 +23,7 @@ public class PatternPackUI
     private Dictionary<string, GameObject> patternActiveIndicators = [];
     private int currentPage = 1;
     private int maxPages = 1;
+    private static plog.Logger log = new($"{Plugin.PLUGIN_SHORTNAME}.{nameof(PatternPackUI)}");
 
     public Transform CGPatternsPanelUI => 
         SceneManager
@@ -109,7 +110,7 @@ public class PatternPackUI
             var pattern = PatternManager.Instance.LoadPattern(Path.Join(focusedPatternPack.Path, allPatterns[i]));
             if (pattern == null)
             {
-                Plugin.Log.Error($"Failed to load pattern \"{Path.Join(focusedPatternPack.Path, allPatterns[i])}\"");
+                log.Error($"Failed to load pattern \"{Path.Join(focusedPatternPack.Path, allPatterns[i])}\"");
                 return;
             }
 
@@ -120,7 +121,7 @@ public class PatternPackUI
             previewTexture.Apply();
 
             if (!patternPreviewSuccess) {
-                Plugin.Log.Warning($"Failed to generate preview for {Path.Join(focusedPatternPack.Path, allPatterns[i])}");
+                log.Warning($"Failed to generate preview for {Path.Join(focusedPatternPack.Path, allPatterns[i])}");
             }
 
             var previewSprite = Sprite.Create(previewTexture, new(0f, 0f, 16f, 16f), Vector2.zero, 100f);
@@ -179,14 +180,14 @@ public class PatternPackUI
         if (focusedPatternPack.EnabledPatterns.Count == 0)
         {
             toggleAllButton?.GetComponentInChildren<TextMeshProUGUI>().text = "Disable All";
-            foreach (var p in focusedPatternPack.ListAllPatterns()) PatternManager.Instance.EnablePattern(focusedPatternPack, p);
-            foreach (var indicator in patternActiveIndicators.Values) indicator?.SetActive(true);
+            focusedPatternPack.ListAllPatterns().ForEach(p => PatternManager.Instance.EnablePattern(focusedPatternPack, p));
+            patternActiveIndicators.Values.ForEach(indicator => indicator?.SetActive(true));
         }
         else
         {
             toggleAllButton?.GetComponentInChildren<TextMeshProUGUI>().text = "Enable All";
-            foreach (var p in focusedPatternPack.ListAllPatterns()) PatternManager.Instance.DisablePattern(focusedPatternPack, p);
-            foreach (var indicator in patternActiveIndicators.Values) indicator?.SetActive(false);
+            focusedPatternPack.ListAllPatterns().ForEach(p => PatternManager.Instance.DisablePattern(focusedPatternPack, p));
+            patternActiveIndicators.Values.ForEach(indicator => indicator?.SetActive(false));
         }
 
         if (!EndlessGrid.Instance.customPatternMode) CustomPatternsPatch.CustomPatternsInstance.Toggle();

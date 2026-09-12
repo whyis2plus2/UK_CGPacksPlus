@@ -19,8 +19,6 @@ public class Plugin : BaseUnityPlugin
     /// <summary> The current instance of the plugin, accessable by all parts of the code </summary>
     public static Plugin Instance;
 
-    public static plog.Logger Log = new();
-
     /// <summary> We need to have an instance of this in order to do patches </summary>
     public readonly Harmony Harmony = new(PLUGIN_SHORTNAME);
 
@@ -28,6 +26,6 @@ public class Plugin : BaseUnityPlugin
     {
         Instance = this;
         Harmony.PatchAll(typeof(Patches.CustomPatternsPatch));
-        Log.Info($"Loaded {PLUGIN_SHORTNAME}");
+        Logger.LogInfo($"Loaded {PLUGIN_SHORTNAME}");
     }
 }

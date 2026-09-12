@@ -1,25 +1,18 @@
 namespace CGPacksPlus.Patterns;
 
-using BepInEx;
+using CGPacksPlus.HelperExtensions;
 using CGPacksPlus.Patches;
-using GameConsole.pcon;
-using HarmonyLib;
+
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-
-using TMPro;
 
 using UnityEngine;
-using UnityEngine.SceneManagement;
-using UnityEngine.UI;
 
 public class PatternManager: MonoSingleton<PatternManager>
 {
-    public static string PatternsPath => Path.Combine(Directory.GetParent(Application.dataPath).FullName, "CyberGrind", "Patterns");
-
+    private static plog.Logger log = new($"{Plugin.PLUGIN_SHORTNAME}.{nameof(PatternManager)}");
     private Dictionary<string, ArenaPattern> patternCache = [];
     private Dictionary<string, PatternPack> patternPackCache = [];
 
@@ -30,6 +23,7 @@ public class PatternManager: MonoSingleton<PatternManager>
     private Dictionary<string, ArenaPattern> _enabledPatterns = [];
     public ArenaPattern[] EnabledPatterns => _enabledPatterns.Values?.ToArray() ?? [];
     public HashSet<string> EnabledPatternsPaths => _enabledPatterns.Keys?.ToHashSet() ?? [];
+    public static string PatternsPath => Path.Combine(Directory.GetParent(Application.dataPath).FullName, "CyberGrind", "Patterns");
 
     public void EnablePattern(PatternPack parent, string patternName)
     {
@@ -37,7 +31,7 @@ public class PatternManager: MonoSingleton<PatternManager>
         else
         {
             _enabledPatterns.TryAdd(Path.Join(parent.Path, patternName), LoadPattern(Path.Join(parent.Path, patternName)));            
-            parent.EnabledPatterns.Add(patternName);
+            parent.EnabledPatterns.AddDistinct(patternName);
             File.WriteAllText(Path.Join(PatternsPath, parent.Path, "cgpack.json"), parent.ToJson());
             EndlessGrid.Instance.customPatterns = EnabledPatterns;
         }
@@ -136,13 +130,13 @@ public class PatternManager: MonoSingleton<PatternManager>
         if (string.IsNullOrEmpty(activePatternsJson)) return;
 
         var activePatterns = JsonUtility.FromJson<ActivePatterns>(activePatternsJson);
-        foreach (var path in activePatterns.enabledPatterns ?? [])
+        (activePatterns.enabledPatterns ?? []).ForEach(path =>
         {
             if (path.Contains(Path.DirectorySeparatorChar)) return;
             var pattern = LoadPattern(path);
             if (pattern) EnablePattern(null, path);
-            else Plugin.Log.Warning($"{nameof(LoadEnabledPatterns)}: Failed to load pattern \"{path}\"");
-        }
+            else log.Warning($"{nameof(LoadEnabledPatterns)}: Failed to load pattern \"{path}\"");
+        });
         
         EndlessGrid.Instance.customPatterns = EnabledPatterns;
     }
@@ -163,7 +157,7 @@ public class PatternManager: MonoSingleton<PatternManager>
         var pattern = CustomPatternsPatch.CustomPatternsInstance.LoadPattern(relativePath);
         if (pattern == null)
         {
-            Plugin.Log.Warning($"PatternManager.LoadPatternAbsolute: Failed to load pattern from path '{absolutePath}'");
+            log.Warning($"Failed to load pattern from path '{absolutePath}'");
             return null;
         }
 
@@ -194,11 +188,9 @@ public class PatternManager: MonoSingleton<PatternManager>
         patternPackCache[relativePath] = result;
 
         // add the pack's patterns to the cache
-        foreach (string patternPath in result.ListAllPatterns())
-        {
-            var pattern = LoadPatternAbsolute(Path.Join(absolutePath, patternPath));
-            if (result.EnabledPatterns.Contains(patternPath)) EnablePattern(result, patternPath);
-        }
+        result.ListAllPatterns().ForEach(
+            p => { if (result.EnabledPatterns.Contains(p)) EnablePattern(result, p); }
+        );
         
         return result;
     }

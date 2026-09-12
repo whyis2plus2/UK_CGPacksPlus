@@ -1,19 +1,16 @@
 namespace CGPacksPlus.Patches;
 
+using CGPacksPlus.HelperExtensions;
 using CGPacksPlus.Patterns;
-using GameConsole.pcon;
+
 using HarmonyLib;
 
-using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 
 using TMPro;
 
 using UnityEngine;
-using UnityEngine.Assertions.Must;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public static class CustomPatternsPatch
@@ -62,11 +59,13 @@ public static class CustomPatternsPatch
 
 		List<GridTile> allPacksAndPatterns = [];
 
-		foreach (string dir in Directory.GetDirectories(patternsPath, "*", SearchOption.TopDirectoryOnly))
-			allPacksAndPatterns.Add(new(){folder = true, path = Path.GetFileName(dir)});
+		Directory.GetDirectories(patternsPath, "*", SearchOption.TopDirectoryOnly).ForEach(
+			dir => allPacksAndPatterns.Add(new(){folder = true, path = Path.GetFileName(dir)})
+		);
 
-		foreach (string dir in Directory.GetFiles(patternsPath, "*.cgp", SearchOption.TopDirectoryOnly))
-			allPacksAndPatterns.Add(new(){folder = false, path = Path.GetFileName(dir)});
+		Directory.GetFiles(patternsPath, "*.cgp", SearchOption.TopDirectoryOnly).ForEach(
+			dir => allPacksAndPatterns.Add(new(){folder = false, path = Path.GetFileName(dir)})
+		);
 
 		__instance.maxPages = Mathf.CeilToInt((float)allPacksAndPatterns.Count/maxItemsPerPage);
 		int currentPage = __instance.currentPage;
