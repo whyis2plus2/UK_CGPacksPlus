@@ -52,7 +52,7 @@
     <CallTarget Targets="CleanCustomArtifacts" />
     <Message Text="Copying files to ./out/" Importance="high" />
 
-    <Copy SourceFiles="./icon.png;./manifest.json;./CHANGELOG.md;$(TargetDir)$(TargetName).dll" DestinationFolder="./out/" />
+    <Copy SourceFiles="./icon.png;./manifest.json;./README.md;./CHANGELOG.md;./LICENSE;$(TargetDir)$(TargetName).dll" DestinationFolder="./out/" />
   
     <Message Text="Finished copying files." Importance="high" />
 
