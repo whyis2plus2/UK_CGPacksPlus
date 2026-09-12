@@ -121,13 +121,13 @@ public static class CustomPatternsPatch
             patternButton.GetComponent<ControllerPointer>().OnPressed.AddListener(() =>
             {
 				pm.TogglePattern(null, key);
-				CustomPatternsInstance.patternActiveIndicators[key].gameObject.SetActive(!CustomPatternsInstance.patternActiveIndicators[key].gameObject.activeSelf);
+				patternActiveIndicators[key].gameObject.SetActive(!patternActiveIndicators[key].gameObject.activeSelf);
                 EndlessGrid.Instance.customPatterns = pm.EnabledPatterns;
 				pm.SaveEnabledPatterns();
             });
 
-			__instance.patternActiveIndicators[key] = patternButton.transform.GetChild(0).gameObject;
-			__instance.patternActiveIndicators[key].SetActive(pm.EnabledPatternsPaths.Contains(key));
+			patternActiveIndicators[key] = patternButton.transform.GetChild(0).gameObject;
+			patternActiveIndicators[key].SetActive(pm.EnabledPatternsPaths.Contains(key));
 		}
 
 		__instance.pageText.text = $"{currentPage}/{__instance.maxPages}";

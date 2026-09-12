@@ -7,11 +7,11 @@ using System.Linq;
 public static class CollectionExtensions
 {
     /// <summary>
-    /// Perform an action on every item of an ICollection&lt;T&gt;.
+    /// Perform an action on every item of a(n) <see cref="ICollection{T}" />
     /// </summary>
     /// <typeparam name="T">The underlying type of each item in the collection</typeparam>
-    /// <param name="self">The ICollection&lt;T&gt; in question</param>
-    /// <param name="action">The action that will be performed on the items of the ICollection&lt;T&gt;</param>
+    /// <param name="self">The <see cref="ICollection{T}" /> in question</param>
+    /// <param name="action">The action that will be performed on the items of the <see cref="ICollection{T}" /></param>
     /// <exception cref="ArgumentNullException" />
     public static void ForEach<T>(this ICollection<T> self, Action<T> action)
     {
@@ -20,7 +20,7 @@ public static class CollectionExtensions
     }
 
     /// <summary>
-    /// Adds multiple items to the end of an ICollection&lt;T&gt;.
+    /// Adds multiple items to the end of an <see cref="ICollection{T}" />.
     /// </summary>
     /// <typeparam name="T">The underlying type of each item in the collection</typeparam>
     /// <param name="self">The collection to add the items to</param>
@@ -29,7 +29,7 @@ public static class CollectionExtensions
     public static void Add<T>(this ICollection<T> self, params T[] items) => items.ForEach(self.Add);
 
     /// <summary>
-    /// Adds the content of multiple collections to an ICollection&lt;T&gt;.
+    /// Adds the content of multiple collections to an <see cref="ICollection{T}" />.
     /// </summary>
     /// <typeparam name="T">The underlying type of each item in the collection</typeparam>
     /// <param name="self">The collection to add the items to</param>
@@ -38,8 +38,8 @@ public static class CollectionExtensions
     public static void Add<T>(this ICollection<T> self, params ICollection<T>[] collections) => collections.ForEach(c => self.Add(c.ToArray()));
 
     /// <summary>
-    /// Add items to the end of an ICollection&lt;T&gt;, while
-    /// preventing any additional duplicates from being added to the ICollection&lt;T&gt;.
+    /// Add items to the end of an <see cref="ICollection{T}" />, while
+    /// preventing any additional duplicates from being added to the <see cref="ICollection{T}" />.
     /// </summary>
     /// <typeparam name="T">The underlying type of the items in the collection</typeparam>
     /// <param name="self">The collection to add the items to</param>
@@ -48,8 +48,8 @@ public static class CollectionExtensions
     public static void AddDistinct<T>(this ICollection<T> self, params T[] items) => self.Add(items.Except(self).ToArray());
 
     /// <summary>
-    /// Add the contents of multiple collections to the end of an ICollection&lt;T&gt;, while
-    /// preventing any additional duplicates from being added to the ICollection&lt;T&gt;.
+    /// Add the contents of multiple collections to the end of an <see cref="ICollection{T}" />, while
+    /// preventing any additional duplicates from being added to the <see cref="ICollection{T}" />.
     /// </summary>
     /// <typeparam name="T">The underlying type of the items in the collection</typeparam>
     /// <param name="self">The collection to add the items to</param>

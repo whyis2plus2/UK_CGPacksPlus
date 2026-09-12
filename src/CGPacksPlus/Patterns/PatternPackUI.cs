@@ -64,6 +64,7 @@ public class PatternPackUI
         packUI.Find("Patterns Window/Panel/Warning Text").gameObject.SetActive(false);
         packUI.Find("Patterns Window/Panel/Patterns").gameObject.SetActive(true);
 
+        // make it so that pressing any of the other buttons also closes the pattern pack ui
         for (int i = 0; i < 4; ++i)
         {
             CGPatternsPanelUI.parent

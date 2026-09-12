@@ -23,7 +23,8 @@ public class PatternManager: MonoSingleton<PatternManager>
     private Dictionary<string, ArenaPattern> _enabledPatterns = [];
     public ArenaPattern[] EnabledPatterns => _enabledPatterns.Values?.ToArray() ?? [];
     public HashSet<string> EnabledPatternsPaths => _enabledPatterns.Keys?.ToHashSet() ?? [];
-    public static string PatternsPath => Path.Combine(Directory.GetParent(Application.dataPath).FullName, "CyberGrind", "Patterns");
+
+    private static string patternsPath => Path.Combine(Directory.GetParent(Application.dataPath).FullName, "CyberGrind", "Patterns");
 
     public void EnablePattern(PatternPack parent, string patternName)
     {
@@ -32,7 +33,7 @@ public class PatternManager: MonoSingleton<PatternManager>
         {
             _enabledPatterns.TryAdd(Path.Join(parent.Path, patternName), LoadPattern(Path.Join(parent.Path, patternName)));            
             parent.EnabledPatterns.AddDistinct(patternName);
-            File.WriteAllText(Path.Join(PatternsPath, parent.Path, "cgpack.json"), parent.ToJson());
+            File.WriteAllText(Path.Join(patternsPath, parent.Path, "cgpack.json"), parent.ToJson());
             EndlessGrid.Instance.customPatterns = EnabledPatterns;
         }
     }
@@ -44,7 +45,7 @@ public class PatternManager: MonoSingleton<PatternManager>
         {
             _enabledPatterns.Remove(Path.Join(parent.Path, patternName));
             parent.EnabledPatterns.Remove(patternName);
-            File.WriteAllText(Path.Join(PatternsPath, parent.Path, "cgpack.json"), parent.ToJson());
+            File.WriteAllText(Path.Join(patternsPath, parent.Path, "cgpack.json"), parent.ToJson());
             EndlessGrid.Instance.customPatterns = EnabledPatterns;
         }
     }
@@ -76,7 +77,7 @@ public class PatternManager: MonoSingleton<PatternManager>
         {
             // load the image into a new texture for ease of implementing the padding algorithm
             Texture2D image = new(1, 1);
-            image.LoadImage(File.ReadAllBytes(Path.Join(PatternsPath, pack.Path, pack.ThumbnailPath)));
+            image.LoadImage(File.ReadAllBytes(Path.Join(patternsPath, pack.Path, pack.ThumbnailPath)));
 
             if (image.width == image.height)
             {
@@ -142,16 +143,16 @@ public class PatternManager: MonoSingleton<PatternManager>
     }
  
     public ArenaPattern LoadPattern(string relativePath) =>
-        LoadPatternAbsolute(Path.Combine(PatternsPath, relativePath));
+        LoadPatternAbsolute(Path.Combine(patternsPath, relativePath));
 
     public PatternPack LoadPack(string relativePath) =>
-        LoadPackAbsolute(Path.Combine(PatternsPath, relativePath));
+        LoadPackAbsolute(Path.Combine(patternsPath, relativePath));
     
     public ArenaPattern LoadPatternAbsolute(string absolutePath)
     {
         if (!File.Exists(absolutePath)) return null;
 
-        string relativePath = Path.GetRelativePath(PatternsPath, absolutePath);
+        string relativePath = Path.GetRelativePath(patternsPath, absolutePath);
         if (patternCache.ContainsKey(relativePath)) return patternCache[relativePath];
 
         var pattern = CustomPatternsPatch.CustomPatternsInstance.LoadPattern(relativePath);
@@ -169,7 +170,7 @@ public class PatternManager: MonoSingleton<PatternManager>
     {
         if (!Directory.Exists(absolutePath)) return null;
 
-        string relativePath = Path.GetRelativePath(PatternsPath, absolutePath);
+        string relativePath = Path.GetRelativePath(patternsPath, absolutePath);
         if (patternPackCache.ContainsKey(relativePath)) return patternPackCache[relativePath];
 
         PatternPack result = null;

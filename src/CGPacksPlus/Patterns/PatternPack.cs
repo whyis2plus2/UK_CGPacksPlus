@@ -52,5 +52,5 @@ public class PatternPack
     }
 
     public bool HasValidThumbnail =>
-        File.Exists(System.IO.Path.Join(PatternManager.PatternsPath, Path, ThumbnailPath));
+        File.Exists(System.IO.Path.Join(patternsPath, Path, ThumbnailPath));
 }
