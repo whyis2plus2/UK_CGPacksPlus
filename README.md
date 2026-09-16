@@ -1,5 +1,5 @@
 # CGPacksPlus
-### A mod for ULTRAKILL that adds extra features to cybergrind patterns.
+### A mod for ULTRAKILL that adds extra features to cybergrind pattern packs.
 
 ## Features
 - Toggling individual patterns in a pattern pack
