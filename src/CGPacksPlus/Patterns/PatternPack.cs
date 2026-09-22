@@ -1,19 +1,21 @@
 namespace CGPacksPlus.Patterns;
 
-using BepInEx;
-using GameConsole.pcon;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
 using UnityEngine;
+using Newtonsoft.Json;
 
-[Serializable]
+
+[JsonObject(MemberSerialization.OptOut)]
 public class PatternPack
 {
-    private static string patternsPath => System.IO.Path.Combine(Directory.GetParent(Application.dataPath).FullName, "CyberGrind", "Patterns");
+
+    [JsonIgnore]
+    private static plog.Logger _log = new($"{Plugin.PLUGIN_SHORTNAME}.{nameof(PatternPack)}");
+
+    private static string _patternsPath => System.IO.Path.Combine(Directory.GetParent(Application.dataPath).FullName, "CyberGrind", "Patterns");
 
     /// <summary>
     /// The display name of the cybergrind pack
@@ -33,24 +35,30 @@ public class PatternPack
     /// <summary>
     /// The path to the pattern pack (relative to the cybergrind patterns folder)
     /// </summary>
-    [NonSerialized]
+    [JsonIgnore]
     public string Path = "";
 
     public static PatternPack FromJson(string jsonData)
     {
-        var result = JsonUtility.FromJson<PatternPack>(jsonData);
+        var result = JsonConvert.DeserializeObject<PatternPack>(jsonData);
+        if (result == null)
+        {
+            _log.Error($"[{nameof(FromJson)}] Failed to load pattern pack from json provided json data");
+            return null;
+        }
+
         result.EnabledPatterns = result.EnabledPatterns.Distinct().ToList();
         return result;
     }
 
-    public string ToJson() => JsonUtility.ToJson(this);
+    public string ToJson() => JsonConvert.SerializeObject(this);
 
     public string[] ListAllPatterns()
     {
-        string[] absolutePaths = Directory.GetFiles(System.IO.Path.Join(patternsPath, Path), "*.cgp", SearchOption.TopDirectoryOnly);
+        string[] absolutePaths = Directory.GetFiles(System.IO.Path.Join(_patternsPath, Path), "*.cgp", SearchOption.TopDirectoryOnly);
         return (from path in absolutePaths select System.IO.Path.GetFileName(path)).ToArray();
     }
 
     public bool HasValidThumbnail =>
-        File.Exists(System.IO.Path.Join(patternsPath, Path, ThumbnailPath));
+        File.Exists(System.IO.Path.Join(_patternsPath, Path, ThumbnailPath));
 }

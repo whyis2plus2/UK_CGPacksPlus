@@ -22,6 +22,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
     <PackageReference Include="UnityEngine.Modules" Version="2022.3.28" IncludeAssets="compile" />
 
     <Reference Include="lib/BepInEx/core/BepInEx.dll" />
