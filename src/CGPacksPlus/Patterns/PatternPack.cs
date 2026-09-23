@@ -8,11 +8,10 @@ using UnityEngine;
 using Newtonsoft.Json;
 
 
-[JsonObject(MemberSerialization.OptOut)]
+[JsonObject(MemberSerialization.OptIn)]
 public class PatternPack
 {
 
-    [JsonIgnore]
     private static plog.Logger _log = new($"{Plugin.PLUGIN_SHORTNAME}.{nameof(PatternPack)}");
 
     private static string _patternsPath => System.IO.Path.Combine(Directory.GetParent(Application.dataPath).FullName, "CyberGrind", "Patterns");
@@ -21,21 +20,23 @@ public class PatternPack
     /// The display name of the cybergrind pack
     /// The name of the folder the pack is stored in will be used instead if this is null.
     /// </summary>
+    [JsonProperty]
     public string DisplayName = "";
 
     /// <summary>
     /// A path to a thumbnail of a pack, relative to the pack's root directory
     /// if this is null, a thumbnail will be generated for the pack at runtime
     /// </summary>
+    [JsonProperty]
     public string ThumbnailPath = "";
 
     /// <summary> A list of paths to all enabled .cgp files, all relative to the pack's root directory </summary>
+    [JsonProperty]
     public List<string> EnabledPatterns = [];
 
     /// <summary>
     /// The path to the pattern pack (relative to the cybergrind patterns folder)
     /// </summary>
-    [JsonIgnore]
     public string Path = "";
 
     public static PatternPack FromJson(string jsonData)
