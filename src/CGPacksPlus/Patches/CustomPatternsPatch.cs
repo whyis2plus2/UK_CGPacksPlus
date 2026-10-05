@@ -15,36 +15,36 @@ using UnityEngine.UI;
 using static UnityEngine.Object;
 
 public static class CustomPatternsPatch {
-    private static PatternPackUI packUI = null;
-    private static PatternManager pm = null;
-    private static Dictionary<string, GameObject> patternPackActiveIndicators => CustomPatternsInstance.patternPackActiveIndicators;
-    private static Dictionary<string, GameObject> patternActiveIndicators => CustomPatternsInstance.patternActiveIndicators;
+    private static PatternPackUI _packUI = null;
+    private static PatternManager _pm = null;
+    private static Dictionary<string, GameObject> _patternPackActiveIndicators => CustomPatternsInstance.patternPackActiveIndicators;
+    private static Dictionary<string, GameObject> _patternActiveIndicators => CustomPatternsInstance.patternActiveIndicators;
 
     public static CustomPatterns CustomPatternsInstance = null;
 
-    private static int maxItemsPerPage => CustomPatternsInstance.maxItemsPerPage;
-    private static string patternsPath => Path.Combine(Directory.GetParent(Application.dataPath).FullName, "CyberGrind", "Patterns");
+    private static int _maxItemsPerPage => CustomPatternsInstance.maxItemsPerPage;
+    private static string _patternsPath => Path.Combine(Directory.GetParent(Application.dataPath).FullName, "CyberGrind", "Patterns");
 
 
     [HarmonyPrefix]
     [HarmonyPatch(typeof(CustomPatterns), "Awake")]
     public static void Prefix_CustomPatterns_Awake(ref CustomPatterns __instance) {
         CustomPatternsInstance = __instance;
-        pm = new();
-        packUI = new();
+        _pm = new();
+        _packUI = new();
     }
 
     [HarmonyPrefix]
     [HarmonyPatch(typeof(CustomPatterns), "SaveEnabledPatterns")]
     public static bool Prefix_CustomPatterns_SaveEnabledPatterns(ref CustomPatterns __instance) {
-        pm.SaveEnabledPatterns();
+        _pm.SaveEnabledPatterns();
         return false;
     }
 
     [HarmonyPrefix]
     [HarmonyPatch(typeof(CustomPatterns), "LoadEnabledPatterns")]
     public static bool Prefix_CustomPatterns_LoadEnabledPatterns(ref CustomPatterns __instance) {
-        pm.LoadEnabledPatterns();
+        _pm.LoadEnabledPatterns();
         return false;
     }
 
@@ -55,25 +55,25 @@ public static class CustomPatternsPatch {
 
         List<GridTile> allPacksAndPatterns = [];
 
-        Directory.GetDirectories(patternsPath, "*", SearchOption.TopDirectoryOnly).ForEach(
+        Directory.GetDirectories(_patternsPath, "*", SearchOption.TopDirectoryOnly).ForEach(
             dir => allPacksAndPatterns.Add(new() { folder = true, path = Path.GetFileName(dir) })
         );
 
-        Directory.GetFiles(patternsPath, "*.cgp", SearchOption.TopDirectoryOnly).ForEach(
+        Directory.GetFiles(_patternsPath, "*.cgp", SearchOption.TopDirectoryOnly).ForEach(
             dir => allPacksAndPatterns.Add(new() { folder = false, path = Path.GetFileName(dir) })
         );
 
-        __instance.maxPages = Mathf.CeilToInt((float)allPacksAndPatterns.Count / maxItemsPerPage);
+        __instance.maxPages = Mathf.CeilToInt((float)allPacksAndPatterns.Count / _maxItemsPerPage);
         int currentPage = __instance.currentPage;
-        for (int i = (currentPage - 1) * maxItemsPerPage; i < allPacksAndPatterns.Count && i < currentPage * maxItemsPerPage; ++i) {
+        for (int i = (currentPage - 1) * _maxItemsPerPage; i < allPacksAndPatterns.Count && i < currentPage * _maxItemsPerPage; ++i) {
             GridTile current = allPacksAndPatterns[i];
 
             if (current.folder) {
-                PatternPack pack = pm.LoadPack(current.path);
+                PatternPack pack = _pm.LoadPack(current.path);
 
                 var thumbnailTexture = new Texture2D(48, 48);
 
-                pm.GeneratePackPreview(pack, ref thumbnailTexture);
+                _pm.GeneratePackPreview(pack, ref thumbnailTexture);
                 thumbnailTexture.Apply();
 
                 bool flipTexture = pack.HasValidThumbnail; // ensures that thumbnails loaded from a file aren't mirrored, they like to do that for some reason
@@ -88,19 +88,19 @@ public static class CustomPatternsPatch {
                 var packButton = Instantiate(__instance.packButtonTemplate, __instance.grid, worldPositionStays: false);
                 packButton.GetComponentInChildren<TMP_Text>(includeInactive: true).text = pack.DisplayName;
                 packButton.GetComponent<Image>().sprite = thumbnailSprite;
-                packButton.GetComponent<ControllerPointer>().OnPressed.AddListener(() => packUI.SetFocusedPack(pack));
+                packButton.GetComponent<ControllerPointer>().OnPressed.AddListener(() => _packUI.SetFocusedPack(pack));
                 packButton.SetActive(true);
 
-                patternActiveIndicators[current.path] = packButton.transform.GetChild(0).gameObject;
-                patternActiveIndicators[current.path].SetActive(pack.EnabledPatterns.Count == pack.ListAllPatterns().Length);
+                _patternActiveIndicators[current.path] = packButton.transform.GetChild(0).gameObject;
+                _patternActiveIndicators[current.path].SetActive(pack.EnabledPatterns.Count == pack.ListAllPatterns().Length);
                 continue;
             }
 
-            var pattern = pm.LoadPattern(current.path);
+            var pattern = _pm.LoadPattern(current.path);
             var patternButton = Instantiate(___grid.GetChild(0), ___grid, worldPositionStays: false).gameObject;
 
             Texture2D previewTexture = new(16, 16);
-            pm.GeneratePatternPreview(pattern, Vector2Int.zero, ref previewTexture);
+            _pm.GeneratePatternPreview(pattern, Vector2Int.zero, ref previewTexture);
             previewTexture.Apply();
 
             var previewSprite = Sprite.Create(previewTexture, new(0f, 0f, 16f, 16f), Vector2.zero, 100f);
@@ -112,14 +112,14 @@ public static class CustomPatternsPatch {
             // put this in a variable so the listener doesn't freak out
             string key = current.path;
             patternButton.GetComponent<ControllerPointer>().OnPressed.AddListener(() => {
-                pm.TogglePattern(null, key);
-                patternActiveIndicators[key].gameObject.SetActive(!patternActiveIndicators[key].gameObject.activeSelf);
-                EndlessGrid.Instance.customPatterns = pm.EnabledPatterns;
-                pm.SaveEnabledPatterns();
+                _pm.TogglePattern(null, key);
+                _patternActiveIndicators[key].gameObject.SetActive(!_patternActiveIndicators[key].gameObject.activeSelf);
+                EndlessGrid.Instance.customPatterns = _pm.EnabledPatterns;
+                _pm.SaveEnabledPatterns();
             });
 
-            patternActiveIndicators[key] = patternButton.transform.GetChild(0).gameObject;
-            patternActiveIndicators[key].SetActive(pm.EnabledPatternsPaths.Contains(key));
+            _patternActiveIndicators[key] = patternButton.transform.GetChild(0).gameObject;
+            _patternActiveIndicators[key].SetActive(_pm.EnabledPatternsPaths.Contains(key));
         }
 
         __instance.pageText.text = $"{currentPage}/{__instance.maxPages}";

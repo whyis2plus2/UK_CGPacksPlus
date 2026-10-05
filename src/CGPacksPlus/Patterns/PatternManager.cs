@@ -11,43 +11,42 @@ using System.Linq;
 using UnityEngine;
 
 public class PatternManager : MonoSingleton<PatternManager> {
-    private plog.Logger log = new($"{Plugin.PLUGIN_SHORTNAME}.{nameof(PatternManager)}");
-    private Dictionary<string, ArenaPattern> patternCache = [];
-    private Dictionary<string, PatternPack> patternPackCache = [];
+    private plog.Logger _log = new($"{Plugin.PLUGIN_SHORTNAME}.{nameof(PatternManager)}");
+    private Dictionary<string, ArenaPattern> _patternCache = [];
+    private Dictionary<string, PatternPack> _patternPackCache = [];
+    private string _cgPatternsPath => Path.Combine(Directory.GetParent(Application.dataPath).FullName, "CyberGrind", "Patterns");
 
     /// <summary>
     /// All enabled paterns that are stored in the root directory of the patterns folder.
     /// patterns not stored in the root directory are handled by their respective pattern packs
     /// </summary>
-    private Dictionary<string, ArenaPattern> enabledPatterns = [];
-    public ArenaPattern[] EnabledPatterns => enabledPatterns.Values?.ToArray() ?? [];
-    public HashSet<string> EnabledPatternsPaths => enabledPatterns.Keys?.ToHashSet() ?? [];
-
-    private string cgPatternsPath => Path.Combine(Directory.GetParent(Application.dataPath).FullName, "CyberGrind", "Patterns");
+    private Dictionary<string, ArenaPattern> _enabledPatterns = [];
+    public ArenaPattern[] EnabledPatterns => _enabledPatterns.Values?.ToArray() ?? [];
+    public HashSet<string> EnabledPatternsPaths => _enabledPatterns.Keys?.ToHashSet() ?? [];
 
     public void EnablePattern(PatternPack parent, string patternName) {
-        if (parent == null) enabledPatterns.TryAdd(patternName, LoadPattern(patternName));
+        if (parent == null) _enabledPatterns.TryAdd(patternName, LoadPattern(patternName));
         else {
-            enabledPatterns.TryAdd(Path.Join(parent.Path, patternName), LoadPattern(Path.Join(parent.Path, patternName)));
+            _enabledPatterns.TryAdd(Path.Join(parent.Path, patternName), LoadPattern(Path.Join(parent.Path, patternName)));
             parent.EnabledPatterns.AddDistinct(patternName);
-            File.WriteAllText(Path.Join(cgPatternsPath, parent.Path, "cgpack.json"), parent.ToJson());
+            File.WriteAllText(Path.Join(_cgPatternsPath, parent.Path, "cgpack.json"), parent.ToJson());
             EndlessGrid.Instance.customPatterns = EnabledPatterns;
         }
     }
 
     public void DisablePattern(PatternPack parent, string patternName) {
-        if (parent == null) enabledPatterns.Remove(patternName);
+        if (parent == null) _enabledPatterns.Remove(patternName);
         else {
-            enabledPatterns.Remove(Path.Join(parent.Path, patternName));
+            _enabledPatterns.Remove(Path.Join(parent.Path, patternName));
             parent.EnabledPatterns.Remove(patternName);
-            File.WriteAllText(Path.Join(cgPatternsPath, parent.Path, "cgpack.json"), parent.ToJson());
+            File.WriteAllText(Path.Join(_cgPatternsPath, parent.Path, "cgpack.json"), parent.ToJson());
             EndlessGrid.Instance.customPatterns = EnabledPatterns;
         }
     }
 
     public void TogglePattern(PatternPack parent, string patternName) {
         string key = (parent == null) ? patternName : Path.Join(parent.Path, patternName);
-        if (enabledPatterns.Keys.Contains(key)) DisablePattern(parent, key);
+        if (_enabledPatterns.Keys.Contains(key)) DisablePattern(parent, key);
         else EnablePattern(parent, key);
     }
 
@@ -69,7 +68,7 @@ public class PatternManager : MonoSingleton<PatternManager> {
         if (pack.HasValidThumbnail) {
             // load the image into a new texture for ease of implementing the padding algorithm
             Texture2D image = new(1, 1);
-            image.LoadImage(File.ReadAllBytes(Path.Join(cgPatternsPath, pack.Path, pack.ThumbnailPath)));
+            image.LoadImage(File.ReadAllBytes(Path.Join(_cgPatternsPath, pack.Path, pack.ThumbnailPath)));
 
             if (image.width == image.height) {
                 target = image;
@@ -106,7 +105,7 @@ public class PatternManager : MonoSingleton<PatternManager> {
         var enabledPatternPacks = JsonUtility.FromJson<ActivePatterns>(activePatternsJson)?.enabledPatternPacks;
 
         ActivePatterns activePatterns = new() {
-            enabledPatterns = enabledPatterns.Keys.SkipWhile((key) => key.Contains(Path.DirectorySeparatorChar)).ToArray(),
+            enabledPatterns = _enabledPatterns.Keys.SkipWhile((key) => key.Contains(Path.DirectorySeparatorChar)).ToArray(),
             enabledPatternPacks = enabledPatternPacks
         };
 
@@ -122,10 +121,10 @@ public class PatternManager : MonoSingleton<PatternManager> {
             if (path.Contains(Path.DirectorySeparatorChar)) return;
             var pattern = LoadPattern(path);
             if (pattern) EnablePattern(null, path);
-            else log.Warning($"{nameof(LoadEnabledPatterns)}: Failed to load pattern \"{path}\"");
+            else _log.Warning($"{nameof(LoadEnabledPatterns)}: Failed to load pattern \"{path}\"");
         });
 
-        Directory.GetDirectories(cgPatternsPath, "*", SearchOption.TopDirectoryOnly).ForEach(absolutePath => {
+        Directory.GetDirectories(_cgPatternsPath, "*", SearchOption.TopDirectoryOnly).ForEach(absolutePath => {
             var pack = LoadPackAbsolute(absolutePath);
             pack.EnabledPatterns.ForEach(pattern => EnablePattern(pack, pattern));
         });
@@ -134,32 +133,32 @@ public class PatternManager : MonoSingleton<PatternManager> {
     }
 
     public ArenaPattern LoadPattern(string relativePath) =>
-        LoadPatternAbsolute(Path.Combine(cgPatternsPath, relativePath));
+        LoadPatternAbsolute(Path.Combine(_cgPatternsPath, relativePath));
 
     public PatternPack LoadPack(string relativePath) =>
-        LoadPackAbsolute(Path.Combine(cgPatternsPath, relativePath));
+        LoadPackAbsolute(Path.Combine(_cgPatternsPath, relativePath));
 
     public ArenaPattern LoadPatternAbsolute(string absolutePath) {
         if (!File.Exists(absolutePath)) return null;
 
-        string relativePath = Path.GetRelativePath(cgPatternsPath, absolutePath);
-        if (patternCache.ContainsKey(relativePath)) return patternCache[relativePath];
+        string relativePath = Path.GetRelativePath(_cgPatternsPath, absolutePath);
+        if (_patternCache.ContainsKey(relativePath)) return _patternCache[relativePath];
 
         var pattern = CustomPatternsPatch.CustomPatternsInstance.LoadPattern(relativePath);
         if (pattern == null) {
-            log.Warning($"Failed to load pattern from path '{absolutePath}'");
+            _log.Warning($"Failed to load pattern from path '{absolutePath}'");
             return null;
         }
 
-        patternCache[relativePath] = pattern;
+        _patternCache[relativePath] = pattern;
         return pattern;
     }
 
     public PatternPack LoadPackAbsolute(string absolutePath) {
         if (!Directory.Exists(absolutePath)) return null;
 
-        string relativePath = Path.GetRelativePath(cgPatternsPath, absolutePath);
-        if (patternPackCache.ContainsKey(relativePath)) return patternPackCache[relativePath];
+        string relativePath = Path.GetRelativePath(_cgPatternsPath, absolutePath);
+        if (_patternPackCache.ContainsKey(relativePath)) return _patternPackCache[relativePath];
 
         PatternPack result = null;
 
@@ -167,14 +166,14 @@ public class PatternManager : MonoSingleton<PatternManager> {
             result = new();
             result.Path = result.DisplayName = relativePath;
 
-            patternPackCache[relativePath] = result;
+            _patternPackCache[relativePath] = result;
             return result;
         }
 
         result = PatternPack.FromJson(File.ReadAllText(Path.Join(absolutePath, "cgpack.json")));
         result.DisplayName = result.DisplayName.Trim();
         result.Path = relativePath;
-        patternPackCache[relativePath] = result;
+        _patternPackCache[relativePath] = result;
 
         // add the pack's patterns to the cache
         result.ListAllPatterns().ForEach(
