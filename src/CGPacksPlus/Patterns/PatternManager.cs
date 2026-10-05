@@ -10,8 +10,7 @@ using System.Linq;
 
 using UnityEngine;
 
-public class PatternManager: MonoSingleton<PatternManager>
-{
+public class PatternManager : MonoSingleton<PatternManager> {
     private plog.Logger log = new($"{Plugin.PLUGIN_SHORTNAME}.{nameof(PatternManager)}");
     private Dictionary<string, ArenaPattern> patternCache = [];
     private Dictionary<string, PatternPack> patternPackCache = [];
@@ -26,23 +25,19 @@ public class PatternManager: MonoSingleton<PatternManager>
 
     private string cgPatternsPath => Path.Combine(Directory.GetParent(Application.dataPath).FullName, "CyberGrind", "Patterns");
 
-    public void EnablePattern(PatternPack parent, string patternName)
-    {
+    public void EnablePattern(PatternPack parent, string patternName) {
         if (parent == null) enabledPatterns.TryAdd(patternName, LoadPattern(patternName));
-        else
-        {
-            enabledPatterns.TryAdd(Path.Join(parent.Path, patternName), LoadPattern(Path.Join(parent.Path, patternName)));            
+        else {
+            enabledPatterns.TryAdd(Path.Join(parent.Path, patternName), LoadPattern(Path.Join(parent.Path, patternName)));
             parent.EnabledPatterns.AddDistinct(patternName);
             File.WriteAllText(Path.Join(cgPatternsPath, parent.Path, "cgpack.json"), parent.ToJson());
             EndlessGrid.Instance.customPatterns = EnabledPatterns;
         }
     }
 
-    public void DisablePattern(PatternPack parent, string patternName)
-    {
+    public void DisablePattern(PatternPack parent, string patternName) {
         if (parent == null) enabledPatterns.Remove(patternName);
-        else
-        {
+        else {
             enabledPatterns.Remove(Path.Join(parent.Path, patternName));
             parent.EnabledPatterns.Remove(patternName);
             File.WriteAllText(Path.Join(cgPatternsPath, parent.Path, "cgpack.json"), parent.ToJson());
@@ -50,9 +45,8 @@ public class PatternManager: MonoSingleton<PatternManager>
         }
     }
 
-    public void TogglePattern(PatternPack parent, string patternName)
-    {
-        string key = (parent == null)? patternName : Path.Join(parent.Path, patternName);
+    public void TogglePattern(PatternPack parent, string patternName) {
+        string key = (parent == null) ? patternName : Path.Join(parent.Path, patternName);
         if (enabledPatterns.Keys.Contains(key)) DisablePattern(parent, key);
         else EnablePattern(parent, key);
     }
@@ -67,20 +61,17 @@ public class PatternManager: MonoSingleton<PatternManager>
     /// <param name="pack">The pattern pack in question.</param>
     /// <param name="target">The texture to be written to.</param>
     /// <returns></returns>
-    public bool GeneratePackPreview(PatternPack pack, ref Texture2D target)
-    {
+    public bool GeneratePackPreview(PatternPack pack, ref Texture2D target) {
         if (pack == null) return false;
 
         string[] allPatterns = pack.ListAllPatterns();
 
-        if (pack.HasValidThumbnail)
-        {
+        if (pack.HasValidThumbnail) {
             // load the image into a new texture for ease of implementing the padding algorithm
             Texture2D image = new(1, 1);
             image.LoadImage(File.ReadAllBytes(Path.Join(cgPatternsPath, pack.Path, pack.ThumbnailPath)));
 
-            if (image.width == image.height)
-            {
+            if (image.width == image.height) {
                 target = image;
                 return true;
             }
@@ -100,10 +91,9 @@ public class PatternManager: MonoSingleton<PatternManager>
         target.Reinitialize(48, 48);
         target.SetPixels(Enumerable.Repeat(Color.black, 2304).ToArray());
 
-        for (int i = 0; i < allPatterns.Length && i < 6; ++i)
-        {
+        for (int i = 0; i < allPatterns.Length && i < 6; ++i) {
             ArenaPattern pattern = LoadPattern(Path.Join(pack.Path, allPatterns[i]));
-            Vector2Int offset = new(i % 3, (i > 2)? 1 : 0);
+            Vector2Int offset = new(i % 3, (i > 2) ? 1 : 0);
             bool result = GeneratePatternPreview(pattern, offset, ref target);
             if (!result) return false;
         }
@@ -111,13 +101,11 @@ public class PatternManager: MonoSingleton<PatternManager>
         return true;
     }
 
-    public void SaveEnabledPatterns()
-    {
+    public void SaveEnabledPatterns() {
         string activePatternsJson = PrefsManager.Instance.GetStringLocal("cyberGrind.enabledPatterns");
         var enabledPatternPacks = JsonUtility.FromJson<ActivePatterns>(activePatternsJson)?.enabledPatternPacks;
 
-        ActivePatterns activePatterns = new()   
-        {
+        ActivePatterns activePatterns = new() {
             enabledPatterns = enabledPatterns.Keys.SkipWhile((key) => key.Contains(Path.DirectorySeparatorChar)).ToArray(),
             enabledPatternPacks = enabledPatternPacks
         };
@@ -125,45 +113,40 @@ public class PatternManager: MonoSingleton<PatternManager>
         PrefsManager.Instance.SetStringLocal("cyberGrind.enabledPatterns", JsonUtility.ToJson(activePatterns));
     }
 
-    public void LoadEnabledPatterns()
-    {
+    public void LoadEnabledPatterns() {
         string activePatternsJson = PrefsManager.Instance.GetStringLocal("cyberGrind.enabledPatterns");
         if (string.IsNullOrEmpty(activePatternsJson)) return;
 
         var activePatterns = JsonUtility.FromJson<ActivePatterns>(activePatternsJson);
-        (activePatterns.enabledPatterns ?? []).ForEach(path =>
-        {
+        (activePatterns.enabledPatterns ?? []).ForEach(path => {
             if (path.Contains(Path.DirectorySeparatorChar)) return;
             var pattern = LoadPattern(path);
             if (pattern) EnablePattern(null, path);
             else log.Warning($"{nameof(LoadEnabledPatterns)}: Failed to load pattern \"{path}\"");
         });
 
-        Directory.GetDirectories(cgPatternsPath, "*", SearchOption.TopDirectoryOnly).ForEach(absolutePath =>
-        {
+        Directory.GetDirectories(cgPatternsPath, "*", SearchOption.TopDirectoryOnly).ForEach(absolutePath => {
             var pack = LoadPackAbsolute(absolutePath);
             pack.EnabledPatterns.ForEach(pattern => EnablePattern(pack, pattern));
         });
-        
+
         EndlessGrid.Instance.customPatterns = EnabledPatterns;
     }
- 
+
     public ArenaPattern LoadPattern(string relativePath) =>
         LoadPatternAbsolute(Path.Combine(cgPatternsPath, relativePath));
 
     public PatternPack LoadPack(string relativePath) =>
         LoadPackAbsolute(Path.Combine(cgPatternsPath, relativePath));
-    
-    public ArenaPattern LoadPatternAbsolute(string absolutePath)
-    {
+
+    public ArenaPattern LoadPatternAbsolute(string absolutePath) {
         if (!File.Exists(absolutePath)) return null;
 
         string relativePath = Path.GetRelativePath(cgPatternsPath, absolutePath);
         if (patternCache.ContainsKey(relativePath)) return patternCache[relativePath];
 
         var pattern = CustomPatternsPatch.CustomPatternsInstance.LoadPattern(relativePath);
-        if (pattern == null)
-        {
+        if (pattern == null) {
             log.Warning($"Failed to load pattern from path '{absolutePath}'");
             return null;
         }
@@ -172,8 +155,7 @@ public class PatternManager: MonoSingleton<PatternManager>
         return pattern;
     }
 
-    public PatternPack LoadPackAbsolute(string absolutePath)
-    {
+    public PatternPack LoadPackAbsolute(string absolutePath) {
         if (!Directory.Exists(absolutePath)) return null;
 
         string relativePath = Path.GetRelativePath(cgPatternsPath, absolutePath);
@@ -181,8 +163,7 @@ public class PatternManager: MonoSingleton<PatternManager>
 
         PatternPack result = null;
 
-        if (!File.Exists(Path.Join(absolutePath, "cgpack.json")))
-        {
+        if (!File.Exists(Path.Join(absolutePath, "cgpack.json"))) {
             result = new();
             result.Path = result.DisplayName = relativePath;
 
@@ -199,7 +180,7 @@ public class PatternManager: MonoSingleton<PatternManager>
         result.ListAllPatterns().ForEach(
             p => { if (result.EnabledPatterns.Contains(p)) EnablePattern(result, p); }
         );
-        
+
         return result;
     }
 }

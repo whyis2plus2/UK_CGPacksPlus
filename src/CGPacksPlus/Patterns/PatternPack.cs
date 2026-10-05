@@ -9,8 +9,7 @@ using Newtonsoft.Json;
 
 
 [JsonObject(MemberSerialization.OptIn)]
-public class PatternPack
-{
+public class PatternPack {
 
     private static plog.Logger _log = new($"{Plugin.PLUGIN_SHORTNAME}.{nameof(PatternPack)}");
 
@@ -39,11 +38,9 @@ public class PatternPack
     /// </summary>
     public string Path = "";
 
-    public static PatternPack FromJson(string jsonData)
-    {
+    public static PatternPack FromJson(string jsonData) {
         var result = JsonConvert.DeserializeObject<PatternPack>(jsonData);
-        if (result == null)
-        {
+        if (result == null) {
             _log.Error($"[{nameof(FromJson)}] Failed to load pattern pack from json provided json data");
             return null;
         }
@@ -54,8 +51,7 @@ public class PatternPack
 
     public string ToJson() => JsonConvert.SerializeObject(this);
 
-    public string[] ListAllPatterns()
-    {
+    public string[] ListAllPatterns() {
         string[] absolutePaths = Directory.GetFiles(System.IO.Path.Join(_patternsPath, Path), "*.cgp", SearchOption.TopDirectoryOnly);
         return (from path in absolutePaths select System.IO.Path.GetFileName(path)).ToArray();
     }

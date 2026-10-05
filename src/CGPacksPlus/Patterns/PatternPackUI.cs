@@ -19,7 +19,7 @@ public class PatternPackUI
     private const int MAX_ITEMS_PER_PAGE = 12;
     private PatternPack focusedPatternPack = null;
     private Transform packUI = null;
-    private Transform grid = null; 
+    private Transform grid = null;
     private Transform toggleAllButton = null;
     private TMP_Text pageText = null;
     private Dictionary<string, GameObject> patternActiveIndicators = [];
@@ -27,7 +27,7 @@ public class PatternPackUI
     private int maxPages = 1;
     private static plog.Logger log = new($"{Plugin.PLUGIN_SHORTNAME}.{nameof(PatternPackUI)}");
 
-    public Transform CGPatternsPanelUI => 
+    public Transform CGPatternsPanelUI =>
         SceneManager
             .GetActiveScene()
             .GetRootGameObjects()
@@ -38,7 +38,7 @@ public class PatternPackUI
     public PatternPackUI()
     {
         packUI = Instantiate(CGPatternsPanelUI, CGPatternsPanelUI.parent);
-    
+
         packUI.gameObject.SetActive(false);
         grid = packUI.Find("Patterns Window/Panel/Patterns/Panel/Grid");
         toggleAllButton = packUI.Find("Patterns Window/Panel").GetChild(1);
@@ -56,7 +56,7 @@ public class PatternPackUI
 
         var pagesUI = packUI.Find("Patterns Window/Panel/Patterns/Pages");
 
-        pagesUI.GetChild(0 /* Prev Page Button */).GetComponent<ControllerPointer>().OnPressed.RemoveAllListeners(); 
+        pagesUI.GetChild(0 /* Prev Page Button */).GetComponent<ControllerPointer>().OnPressed.RemoveAllListeners();
         pagesUI.GetChild(0 /* Prev Page Button */).GetComponent<ControllerPointer>().OnPressed.AddListener(PrevPage);
         pagesUI.GetChild(2 /* Next Page Button */).GetComponent<ControllerPointer>().OnPressed.RemoveAllListeners();
         pagesUI.GetChild(2 /* Next Page Button */).GetComponent<ControllerPointer>().OnPressed.AddListener(NextPage);
